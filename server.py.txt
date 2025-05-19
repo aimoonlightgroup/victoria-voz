@@ -1,0 +1,16 @@
+from flask import Flask, request, send_file
+from TTS.api import TTS
+import uuid
+import os
+
+app = Flask(__name__)
+tts = TTS(model_name="tts_models/es/css10/vits", progress_bar=False, gpu=False)
+
+@app.route("/speak", methods=["POST"])
+def speak():
+    data = request.get_json()
+    text = data.get("text", "Hola, soy Victoria.")
+    speed = 0.85
+    filename = f"/tmp/{uuid.uuid4()}.wav"
+    tts.tts_to_file(text=text, file_path=filename, speed=speed)
+    return send_file(filename, mimetype="audio/wav", as_attachment=False)
